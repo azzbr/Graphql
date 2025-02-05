@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Profile Dashboard</title>
+    <script>
+        // Check authentication and redirect accordingly
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            window.location.href = '/src/pages/profile.html';
+        } else {
+            window.location.href = '/src/pages/login.html';
+        }
+    </script>
+</head>
+<body>
+    <!-- This page serves as a router and will redirect to login or profile -->
+</body>
+</html>
