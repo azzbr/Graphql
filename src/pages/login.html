@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GraphQL Profile</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components/forms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="form-title">Login</h1>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="identifier" class="form-label">Username or Email</label>
+                    <input 
+                        type="text" 
+                        id="identifier" 
+                        name="identifier" 
+                        class="form-input" 
+                        required 
+                        autocomplete="username"
+                    >
+                    <i class="input-icon fas fa-user"></i>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        required 
+                        autocomplete="current-password"
+                    >
+                    <i class="input-icon fas fa-lock"></i>
+                </div>
+
+                <div id="errorMessage" class="error-message"></div>
+
+                <button type="submit" class="submit-button">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authService } from '../js/auth/authService.js';
+
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+
+            // Reset error state
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('visible');
+            
+            // Show loading state
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+
+            try {
+                await authService.login(identifier, password);
+                window.location.href = './profile.html';
+            } catch (error) {
+                errorMessage.textContent = 'Invalid credentials. Please try again.';
+                errorMessage.classList.add('visible');
+            } finally {
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+            }
+        });
+
+        // Redirect if already logged in
+        if (authService.isAuthenticated()) {
+            window.location.href = './profile.html';
+        }
+    </script>
+</body>
+</html>
