@@ -1,6 +1,6 @@
 const config = {
     auth: {
-        apiUrl: 'https://zone01normandie.org/api/auth/signin',
+        apiUrl: 'https://learn.reboot01.com/api/auth/signin',
         tokenKey: 'jwt',
     },
     errors: {

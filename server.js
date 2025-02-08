@@ -14,11 +14,19 @@ function log(message) {
     const timestamp = new Date().toISOString();
     const logMessage = `[${timestamp}] ${message}\n`;
     
-    // Log to console
-    console.log(logMessage);
-    
-    // Log to file
-    fs.appendFileSync(path.join(logsDir, 'server.log'), logMessage);
+    // Only log to file
+    try {
+        fs.appendFileSync(path.join(logsDir, 'server.log'), logMessage);
+    } catch (error) {
+        // If logging fails, don't throw error to prevent app disruption
+        // but write to a fallback error log
+        try {
+            fs.appendFileSync(path.join(logsDir, 'error.log'), 
+                `[${timestamp}] Failed to write log: ${error.message}\n`);
+        } catch {
+            // Silently fail if even error logging fails
+        }
+    }
 }
 
 // Log all requests
@@ -27,7 +35,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static files
+// Parse JSON bodies
+app.use(express.json());
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')), (req, res, next) => {
     if (req.url !== '/favicon.ico') {
@@ -48,7 +61,14 @@ app.use('/src', express.static(path.join(__dirname, 'src'), {
     next();
 });
 
-// Redirect all routes to index.html for client-side routing
+// Handle POST login request
+app.post('/login', (req, res) => {
+    log(`Login attempt for user: ${req.body.username}`);
+    // Let client-side handle the authentication
+    res.redirect('/');
+});
+
+// Redirect all other routes to index.html for client-side routing
 app.get('*', (req, res) => {
     log(`Redirecting ${req.url} to index.html`);
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

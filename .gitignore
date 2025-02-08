@@ -7,8 +7,8 @@
 *.log
 
 # reference files
+!/For Reference 2/
 /For Reference/
-/For Reference 2/
 
 # environment files
 .env

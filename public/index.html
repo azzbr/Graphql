@@ -103,8 +103,8 @@
         <div>Loading...</div>
     </div>
 
-    <div id="loginForm" style="display: none;">
-        <form id="login" class="auth-form">
+    <div id="loginForm">
+        <form id="login" class="auth-form" onsubmit="return false;">
             <h2>Login</h2>
             <div class="form-group">
                 <label for="username">Username</label>
@@ -171,6 +171,8 @@
 
         function showLoading() {
             loading.classList.add('active');
+            loginForm.style.display = 'none';
+            profileContent.style.display = 'none';
         }
 
         function hideLoading() {
@@ -178,19 +180,24 @@
         }
 
         function showLogin() {
+            hideLoading();
             loginForm.style.display = 'block';
             profileContent.style.display = 'none';
         }
 
         function showProfile() {
+            hideLoading();
             loginForm.style.display = 'none';
             profileContent.style.display = 'block';
             initializeCharts();
         }
 
+        // Show loading initially while checking auth
+        showLoading();
+
         // Setup login form
         document.getElementById('login').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault();  // Prevent form submission
             showLoading();
             
             const username = document.getElementById('username').value;
@@ -198,17 +205,20 @@
             
             try {
                 await authService.login(username, password);
+                // Reinitialize GraphQL client with new auth token
+                graphqlClient.initClient();
                 showProfile();
             } catch (error) {
                 console.error('Login failed:', error);
                 alert('Login failed. Please check your credentials.');
-            } finally {
                 hideLoading();
             }
         });
 
         // Setup logout
         document.getElementById('logoutButton').addEventListener('click', () => {
+            // Clean up GraphQL client
+            graphqlClient.cleanup();
             authService.logout();
             showLogin();
         });
