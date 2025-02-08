@@ -1,41 +1,55 @@
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { authService } from '../auth/authService.js';
 
 class GraphQLClient {
     constructor() {
         this.endpoint = 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
+        this.client = null;
+        this.initClient();
+    }
+
+    initClient() {
+        this.client = new ApolloClient({
+            uri: this.endpoint,
+            cache: new InMemoryCache(),
+            defaultOptions: {
+                watchQuery: {
+                    fetchPolicy: 'network-only',
+                    errorPolicy: 'all',
+                },
+                query: {
+                    fetchPolicy: 'network-only',
+                    errorPolicy: 'all',
+                },
+            },
+            headers: authService.getAuthHeaders(),
+        });
     }
 
     async query(queryString, variables = {}) {
         try {
-            const response = await fetch(this.endpoint, {
-                method: 'POST',
-                headers: authService.getAuthHeaders(),
-                body: JSON.stringify({
-                    query: queryString,
-                    variables
-                })
+            // Convert string query to gql
+            const gqlQuery = gql`${queryString}`;
+            
+            const { data, errors } = await this.client.query({
+                query: gqlQuery,
+                variables,
             });
 
-            if (!response.ok) {
-                throw new Error('GraphQL query failed');
+            if (errors) {
+                throw new Error(errors[0].message);
             }
 
-            const data = await response.json();
-            
-            if (data.errors) {
-                throw new Error(data.errors[0].message);
-            }
-
-            return data.data;
+            return data;
         } catch (error) {
             console.error('GraphQL query error:', error);
             throw error;
         }
     }
 
-    // Predefined queries for common operations
+    // Predefined queries using gql tag
     async getUserProfile() {
-        const query = `
+        const query = gql`
             query {
                 user {
                     id
@@ -44,14 +58,17 @@ class GraphQLClient {
                     firstName
                     lastName
                     attrs
+                    totalUp
+                    totalDown
                 }
             }
         `;
-        return this.query(query);
+        const { data } = await this.client.query({ query });
+        return data;
     }
 
     async getUserXP() {
-        const query = `
+        const query = gql`
             query {
                 transaction_aggregate(where: {type: {_eq: "xp"}, eventId: {_eq: 32}}) {
                     aggregate {
@@ -62,11 +79,12 @@ class GraphQLClient {
                 }
             }
         `;
-        return this.query(query);
+        const { data } = await this.client.query({ query });
+        return data;
     }
 
     async getUserSkills() {
-        const query = `
+        const query = gql`
             query {
                 user {
                     transactions(where: {
@@ -78,11 +96,12 @@ class GraphQLClient {
                 }
             }
         `;
-        return this.query(query);
+        const { data } = await this.client.query({ query });
+        return data;
     }
 
     async getXPProgression() {
-        const query = `
+        const query = gql`
             query {
                 user {
                     transactions(
@@ -112,7 +131,8 @@ class GraphQLClient {
                 }
             }
         `;
-        return this.query(query);
+        const { data } = await this.client.query({ query });
+        return data;
     }
 }
 

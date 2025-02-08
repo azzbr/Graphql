@@ -1,11 +1,11 @@
 import { Chart } from './Chart.js';
 
-export class LineChart extends Chart {
+export class XPCurveChart extends Chart {
     constructor(containerId, data, options = {}) {
         super(containerId, data, {
             ...options,
             chart: {
-                type: 'line',
+                type: 'area',
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
@@ -40,16 +40,14 @@ export class LineChart extends Chart {
                 type: 'gradient',
                 gradient: {
                     shadeIntensity: 1,
-                    opacityFrom: 0.4,
-                    opacityTo: 0.1,
+                    opacityFrom: 0.45,
+                    opacityTo: 0.05,
                     stops: [0, 90, 100]
                 }
             },
             markers: {
-                size: 6,
+                size: 5,
                 strokeWidth: 2,
-                strokeColors: options.colors || ['#2563EB'],
-                fillColors: '#fff',
                 hover: {
                     size: 8,
                     sizeOffset: 3
@@ -63,12 +61,24 @@ export class LineChart extends Chart {
                         month: "MMM 'yy",
                         day: 'dd MMM',
                         hour: 'HH:mm'
+                    },
+                    style: {
+                        fontSize: '14px'
                     }
                 }
             },
             yaxis: {
                 labels: {
-                    formatter: (value) => value.toLocaleString()
+                    formatter: (value) => this.formatXP(value),
+                    style: {
+                        fontSize: '14px'
+                    }
+                },
+                title: {
+                    text: 'XP',
+                    style: {
+                        fontSize: '14px'
+                    }
                 }
             },
             tooltip: {
@@ -76,7 +86,21 @@ export class LineChart extends Chart {
                     format: 'dd MMM yyyy'
                 },
                 y: {
-                    formatter: (value) => value.toLocaleString()
+                    formatter: (value) => this.formatXP(value)
+                }
+            },
+            grid: {
+                borderColor: options.theme?.gridColor || '#e0e0e0',
+                strokeDashArray: 4,
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: true
+                    }
                 }
             }
         });
@@ -92,15 +116,16 @@ export class LineChart extends Chart {
             return;
         }
 
+        // Process and sort data
         let cumulative = 0;
         const processedPoints = this.data
-            .map(point => ({
-                date: new Date(point.date).getTime(),
-                value: Number(point.value) || 0
+            .map(item => ({
+                date: new Date(item.date).getTime(),
+                amount: Number(item.amount) || 0
             }))
             .sort((a, b) => a.date - b.date)
             .map(point => {
-                cumulative += point.value;
+                cumulative += point.amount;
                 return [point.date, cumulative];
             });
 
@@ -110,11 +135,20 @@ export class LineChart extends Chart {
         }];
     }
 
+    formatXP(value) {
+        if (value >= 1000000) {
+            return `${(value / 1000000).toFixed(1)}M`;
+        } else if (value >= 1000) {
+            return `${(value / 1000).toFixed(1)}k`;
+        }
+        return value.toFixed(0);
+    }
+
     render() {
         try {
             super.render();
         } catch (error) {
-            console.error('Error rendering LineChart:', error);
+            console.error('Error rendering XPCurveChart:', error);
             this.container.innerHTML = `
                 <div style="color: #666; text-align: center; padding: 20px;">
                     No data available

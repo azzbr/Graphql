@@ -124,8 +124,9 @@
         import { authService } from '../js/auth/authService.js';
         import { graphqlClient } from '../js/api/graphqlClient.js';
         import { DataTransformer } from '../js/utils/dataTransformers.js';
-        import { LineChart } from '../js/visualizations/LineChart.js';
-        import { RadarChart } from '../js/visualizations/RadarChart.js';
+        import { XPCurveChart } from '../js/visualizations/XPCurveChart.js';
+        import { SkillsRadarChart } from '../js/visualizations/SkillsRadarChart.js';
+        import { RatioChart } from '../js/visualizations/RatioChart.js';
 
         // Check authentication
         if (!authService.isAuthenticated()) {
@@ -158,64 +159,107 @@
 
             userInfo.innerHTML = infoHTML;
         }
+// Store chart instances
+let charts = {
+    xp: null,
+    tech: null,
+    lang: null,
+    ratio: null
+};
 
-        async function displayAuditRatio(totalUp, totalDown) {
-            const auditInfo = document.getElementById('auditInfo');
-            const { up, down, ratio } = DataTransformer.calculateAuditRatio(totalUp, totalDown);
+function clearCharts() {
+    // Clear all chart containers
+    document.getElementById('auditInfo').innerHTML = '';
+    document.getElementById('xpChart').innerHTML = '';
+    document.getElementById('techSkillsChart').innerHTML = '';
+    document.getElementById('langSkillsChart').innerHTML = '';
+    
+    // Reset chart instances
+    charts = {
+        xp: null,
+        tech: null,
+        lang: null,
+        ratio: null
+    };
+}
 
-            auditInfo.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 24px; margin-bottom: 10px;">
-                        ${ratio}
-                    </div>
-                    <div style="color: var(--success-color); margin-bottom: 5px;">
-                        Up: ${up} MB
-                    </div>
-                    <div style="color: var(--error-color);">
-                        Down: ${down} MB
-                    </div>
-                </div>
-            `;
+async function initializeCharts(isResize = false) {
+    try {
+        if (isResize) {
+            clearCharts();
         }
 
-        async function initializeCharts() {
-            try {
-                // Fetch user data
-                const userData = await graphqlClient.getUserProfile();
-                displayUserInfo(userData.user[0]);
-                displayAuditRatio(userData.user[0].totalUp, userData.user[0].totalDown);
+        // Fetch user data
+        const userData = await graphqlClient.getUserProfile();
+        if (!isResize) {
+            displayUserInfo(userData.user[0]);
+        }
 
-                // Fetch and display XP progress
-                const xpData = await graphqlClient.getXPProgression();
-                const processedXPData = DataTransformer.transformXPData(xpData.user[0].transactions);
-                const xpChart = new LineChart('xpChart', processedXPData);
-                xpChart.render();
-
-                // Fetch and display skills
-                const skillsData = await graphqlClient.getUserSkills();
-                const { technicalSkills, languageSkills } = DataTransformer.transformSkillsData(skillsData.user[0].transactions);
-                
-                const techSkillsChart = new RadarChart('techSkillsChart', technicalSkills);
-                techSkillsChart.render();
-
-                const langSkillsChart = new RadarChart('langSkillsChart', languageSkills);
-                langSkillsChart.render();
-
-            } catch (error) {
-                console.error('Error initializing charts:', error);
-                // Handle error (show error message to user)
+        // Initialize ratio chart
+        const ratioData = {
+            upload: userData.user[0].totalUp,
+            download: userData.user[0].totalDown
+        };
+        charts.ratio = new RatioChart('auditInfo', ratioData, {
+            colors: ['#4CAF50', '#f44336'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)'
             }
+        });
+        charts.ratio.render();
+
+        // Initialize XP progress chart
+        const xpData = await graphqlClient.getXPProgression();
+        const processedXPData = DataTransformer.transformXPData(xpData.user[0].transactions);
+        charts.xp = new XPCurveChart('xpChart', processedXPData, {
+            colors: ['#2196F3'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                axisColor: 'var(--border-color)'
+            }
+        });
+        charts.xp.render();
+
+        // Initialize skills charts
+        const skillsData = await graphqlClient.getUserSkills();
+        const { technicalSkills, languageSkills } = DataTransformer.transformSkillsData(skillsData.user[0].transactions);
+        
+        charts.tech = new SkillsRadarChart('techSkillsChart', technicalSkills, {
+            colors: ['#FF9800'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                fontFamily: 'inherit'
+            }
+        });
+        charts.tech.render();
+
+        charts.lang = new SkillsRadarChart('langSkillsChart', languageSkills, {
+            colors: ['#E91E63'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                fontFamily: 'inherit'
+            }
+        });
+        charts.lang.render();
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+            // Handle error (show error message to user)
         }
+    }
 
         // Initialize everything
-        initializeCharts();
+        initializeCharts(false);
 
         // Handle window resize
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                initializeCharts();
+                initializeCharts(true);
             }, 250);
         });
     </script>

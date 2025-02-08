@@ -1,0 +1,23 @@
+# dependencies
+/node_modules
+/package-lock.json
+
+# logs
+/logs
+*.log
+
+# reference files
+/For Reference/
+/For Reference 2/
+
+# environment files
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+
+# misc
+.DS_Store
+*.pem

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - GraphQL Profile</title>
-    <link rel="stylesheet" href="../css/pages/login.css">
+    <link rel="stylesheet" href="/src/css/pages/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
@@ -58,7 +58,7 @@
     </div>
 
     <script type="module">
-        import { authService } from '../js/auth/authService.js';
+        import { authService } from '/src/js/auth/authService.js';
 
         const form = document.querySelector('.login_form');
         const errorElement = document.querySelector('#login_error');
@@ -121,7 +121,7 @@
 
             try {
                 await authService.login(identifier, password);
-                window.location.href = "./profile.html";
+                window.location.href = "/profile.html";
             } catch (error) {
                 // Handle different types of errors
                 if (error.message.includes('Username')) {
@@ -144,7 +144,7 @@
 
         // Redirect if already logged in
         if (authService.isAuthenticated()) {
-            window.location.href = './profile.html';
+            window.location.href = '/profile.html';
         }
     </script>
 </body>

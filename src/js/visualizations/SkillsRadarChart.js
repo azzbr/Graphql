@@ -1,6 +1,6 @@
 import { Chart } from './Chart.js';
 
-export class RadarChart extends Chart {
+export class SkillsRadarChart extends Chart {
     constructor(containerId, data, options = {}) {
         super(containerId, data, {
             ...options,
@@ -57,11 +57,26 @@ export class RadarChart extends Chart {
                 max: 100,
                 tickAmount: 5,
                 labels: {
-                    formatter: (value) => `${value}%`
+                    formatter: (value) => `${value}%`,
+                    style: {
+                        fontSize: '14px',
+                        fontFamily: options.theme?.fontFamily
+                    }
                 }
             }
         });
+        this.data = this.normalizeData(data);
         this.processData();
+    }
+
+    normalizeData(data) {
+        if (!data || typeof data !== 'object') return {};
+        
+        // Convert data object to array format
+        return Object.entries(data).map(([name, value]) => ({
+            name,
+            value: Math.min(Math.max(Number(value) || 0, 0), 100) // Normalize between 0 and 100
+        }));
     }
 
     processData() {
@@ -74,10 +89,8 @@ export class RadarChart extends Chart {
         }
 
         // Process data for radar chart format
-        const categories = this.data.map(item => item.name || 'Unknown');
-        const values = this.data.map(item => 
-            Math.min(Math.max(Number(item.value) || 0, 0), 100)
-        );
+        const categories = this.data.map(item => item.name);
+        const values = this.data.map(item => item.value);
 
         this.processedData = [{
             name: 'Skills',
@@ -100,7 +113,7 @@ export class RadarChart extends Chart {
         try {
             super.render();
         } catch (error) {
-            console.error('Error rendering RadarChart:', error);
+            console.error('Error rendering SkillsRadarChart:', error);
             this.container.innerHTML = `
                 <div style="color: #666; text-align: center; padding: 20px;">
                     No data available
@@ -110,7 +123,7 @@ export class RadarChart extends Chart {
     }
 
     update(newData) {
-        this.data = newData;
+        this.data = this.normalizeData(newData);
         this.processData();
         super.update(this.processedData);
     }

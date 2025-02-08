@@ -1,0 +1,25 @@
+{
+  "name": "graphql",
+  "version": "1.0.0",
+  "description": "A modern web application that displays user profile information and statistics using GraphQL. The application features a secure login system and interactive visualizations of user data.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://learn.reboot01.com/git/arajab/graphql.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@apollo/client": "^3.12.11",
+    "apexcharts": "^4.4.0",
+    "express": "^4.21.2",
+    "graphql": "^16.10.0",
+    "react-apexcharts": "^1.7.0"
+  }
+}
