@@ -16,6 +16,7 @@ import LineChart from './components/Charts/LineChart';
 import { ApolloError } from '@apollo/client';
 import PieChart from './components/Charts/PieChart';
 import Table from './components/Table';
+import PendingProjects from './components/PendingProjects';
 
 interface User {
   id: number;
@@ -70,6 +71,28 @@ interface Project {
   };
   key: string;
 }
+
+const pendingProjectsList = [
+  'tetris-optimizer',
+  'guess-it-2',
+  'git',
+  'my-ls-1',
+  'groupie-tracker-geolocalization',
+  'push-swap',
+  'make-your-game-score-handling',
+  'make-your-game-history',
+  'make-your-game-different-maps',
+  'real-time-forum-typing-in-progress',
+  'atm-management-system',
+  'mister-quiz',
+  'shop',
+  'graphql',
+  'stock-exchange-sim',
+  'netfix',
+  'system-monitor',
+  'wget',
+  'make-your-own'
+];
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -396,6 +419,11 @@ const Dashboard: React.FC = () => {
             <div className="col-span-12">
               <div className="card">
                 <Table transactions={xps ? xps : []} />
+              </div>
+            </div>
+            <div className="col-span-12">
+              <div className="card">
+                <PendingProjects projects={pendingProjectsList} />
               </div>
             </div>
           </div>
