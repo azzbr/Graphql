@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GraphQL</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+    <div class="min-h-screen">
+        <!-- Main Content -->
+        <div class="p-4 sm-p-6 xl-p-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 gap-4 md-grid-cols-2 xl-grid-cols-4 md-gap-6 xxl-gap-7-5" id="statsGrid"></div>
+
+            <!-- Charts -->
+            <div class="mt-4 grid grid-cols-12 gap-4 md-mt-6 md-gap-6 xxl-mt-7-5 xxl-gap-7-5">
+                <div id="lineChartContainer" class="col-span-12 xl-col-span-8">
+                    <div class="bg-white border rounded-sm shadow px-7.5 py-6">
+                        <!-- Line Chart will be rendered here -->
+                    </div>
+                </div>
+                <div id="pieChartContainer" class="col-span-12 xl-col-span-4">
+                    <div class="bg-white border rounded-sm shadow px-7.5 py-6">
+                        <!-- Pie Chart will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { fetchGQLData } from '../js/api/graphqlClient.js';
+        import { GET_USER_WITH_AUDIT, GET_XP, GET_SKILLS, GET_MODULE_EVENT, GET_PROJECTS_TRANSACTIONS } from '../js/api/queries.js';
+        import CardDataStats from '../js/components/CardDataStats.js';
+        import LineChart from '../js/components/LineChart.js';
+        import PieChart from '../js/components/PieChart.js';
+
+        async function fetchDashboardData() {
+            const token = localStorage.getItem('hasura-jwt-token');
+            if (!token) {
+                window.location.replace('../login.html');
+                return;
+            }
+
+            try {
+                // Get user data with audit info
+                const userRes = await fetchGQLData(GET_USER_WITH_AUDIT, token);
+                if (!userRes.data || !userRes.data.user || !userRes.data.user[0]) {
+                    throw new Error('Invalid user data');
+                }
+                const user = userRes.data.user[0];
+
+                // Get module event data
+                const eventsRes = await fetchGQLData(GET_MODULE_EVENT, token, {
+                    userId: user.id,
+                    modulePath: '/bahrain/bh-module'
+                });
+                if (!eventsRes.data?.user?.[0]?.events?.[0]) {
+                    throw new Error('Invalid module event data');
+                }
+                const moduleEvent = eventsRes.data.user[0].events[0];
+
+                // Get XP data
+                const xpRes = await fetchGQLData(GET_XP, token, {
+                    userId: user.id,
+                    rootEventId: moduleEvent.eventId
+                });
+                if (!xpRes.data?.xp?.aggregate?.sum) {
+                    throw new Error('Invalid XP data');
+                }
+                const xp = xpRes.data.xp.aggregate.sum.amount;
+
+                // Get XP progression data
+                const xpProgressRes = await fetchGQLData(GET_PROJECTS_TRANSACTIONS, token, {
+                    userId: user.id,
+                    eventId: moduleEvent.eventId
+                });
+                if (!xpProgressRes.data?.transaction) {
+                    throw new Error('Invalid XP progression data');
+                }
+                const xpProgress = xpProgressRes.data.transaction;
+
+                // Get skills data
+                const skillsRes = await fetchGQLData(GET_SKILLS, token, {
+                    userId: user.id
+                });
+                if (!skillsRes.data?.transaction) {
+                    throw new Error('Invalid skills data');
+                }
+                const skills = skillsRes.data.transaction;
+
+                // Level Card
+                new CardDataStats(document.getElementById('statsGrid'), {
+                    title: 'Level',
+                    total: moduleEvent.level.toString(),
+                    icon: `<svg class="fill-primary" width="22" height="22" viewBox="-7 -7 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="" d="M30.000,32.000 L23.000,32.000 C22.447,32.000 22.000,31.552 22.000,31.000 L22.000,1.000 C22.000,0.448 22.447,-0.000 23.000,-0.000 L30.000,-0.000 C30.553,-0.000 31.000,0.448 31.000,1.000 L31.000,31.000 C31.000,31.552 30.553,32.000 30.000,32.000 Z"/>
+                    </svg>`
+                });
+
+                // XP Card
+                new CardDataStats(document.getElementById('statsGrid'), {
+                    title: 'Total XP',
+                    total: (Math.round(xp / 10000) / 100).toString() + 'MB',
+                    icon: `<svg class="fill-primary" width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.526 23h1.414l.977-4.923 2.306.01c1.61 0 2.934-.412 3.973-1.236 1.04-.824 1.633-1.921 1.779-3.293.088-.941-.056-1.76-.434-2.455l-2.73 1.427c.02.11.031.223.035.335.022.872-.183 1.566-.615 2.083-.432.516-1.04.78-1.822.793l-2.031-.02.194-.975-3.515 1.837-.64 3.245-.862-2.46-2.645 1.383L12.992 23z"/>
+                    </svg>`
+                });
+
+                // Audit Ratio Card
+                new CardDataStats(document.getElementById('statsGrid'), {
+                    title: 'Audit ratio',
+                    total: (Math.round(user.auditRatio * 10) / 10).toString(),
+                    rateUp: (Math.round(user.totalUp / 10000) / 100).toString() + 'MB',
+                    rateDown: (Math.round(user.totalDown / 10000) / 100).toString() + 'MB',
+                    icon: `<svg class="fill-primary" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4,21a1,1,0,0,1-.71-.29,1,1,0,0,1,0-1.42l16-16a1,1,0,1,1,1.42,1.42l-16,16A1,1,0,0,1,4,21Z"/>
+                    </svg>`
+                });
+
+                // Render charts
+                const lineChartContainer = document.getElementById('lineChartContainer').querySelector('div');
+                new LineChart(lineChartContainer, xpProgress);
+
+                const pieChartContainer = document.getElementById('pieChartContainer').querySelector('div');
+                new PieChart(pieChartContainer, skills);
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                localStorage.removeItem('hasura-jwt-token');
+                window.location.replace('../login.html');
+            }
+        }
+
+        // Initialize dashboard
+        fetchDashboardData();
+
+        // Add logout button
+        const logoutButton = document.createElement('button');
+        logoutButton.className = 'submit-button';
+        logoutButton.style.cssText = 'position: fixed; top: 1rem; right: 1rem; max-width: 120px;';
+        logoutButton.textContent = 'Logout';
+        logoutButton.onclick = () => {
+            localStorage.removeItem('hasura-jwt-token');
+            window.location.replace('../login.html');
+        };
+        document.body.appendChild(logoutButton);
+    </script>
+</body>
+</html>

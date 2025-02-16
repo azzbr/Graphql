@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - GraphQL Profile</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Profile-specific styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            background-color: var(--surface-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: 4px;
+            background-color: var(--error-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .profile-section {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: var(--spacing-md);
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .info-item {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .info-label {
+            color: var(--text-color-light);
+            font-size: var(--text-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .info-value {
+            font-size: var(--text-base);
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Profile Dashboard</h1>
+        <button class="logout-button" id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </header>
+
+    <main class="container">
+        <section class="profile-section">
+            <h2>User Information</h2>
+            <div class="user-info" id="userInfo">
+                <!-- User info will be populated here -->
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>XP Progress</h3>
+                <div class="chart-container" id="xpChart"></div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Technical Skills</h3>
+                <div class="chart-container" id="techSkillsChart"></div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Language Skills</h3>
+                <div class="chart-container" id="langSkillsChart"></div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Audit Ratio</h3>
+                <div class="chart-container" id="auditInfo"></div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { authService } from '../js/auth/authService.js';
+        import { graphqlClient } from '../js/api/graphqlClient.js';
+        import { DataTransformer } from '../js/utils/dataTransformers.js';
+        import { XPCurveChart } from '../js/visualizations/XPCurveChart.js';
+        import { SkillsRadarChart } from '../js/visualizations/SkillsRadarChart.js';
+        import { RatioChart } from '../js/visualizations/RatioChart.js';
+
+        // Check authentication
+        if (!authService.isAuthenticated()) {
+            window.location.href = './login.html';
+        }
+
+        // Setup logout
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            authService.logout();
+        });
+
+        async function displayUserInfo(userData) {
+            const userInfo = document.getElementById('userInfo');
+            const { login, email, firstName, lastName, attrs } = userData;
+
+            const infoHTML = `
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">${login}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">${email}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Name</div>
+                    <div class="info-value">${firstName} ${lastName}</div>
+                </div>
+            `;
+
+            userInfo.innerHTML = infoHTML;
+        }
+// Store chart instances
+let charts = {
+    xp: null,
+    tech: null,
+    lang: null,
+    ratio: null
+};
+
+function clearCharts() {
+    // Clear all chart containers
+    document.getElementById('auditInfo').innerHTML = '';
+    document.getElementById('xpChart').innerHTML = '';
+    document.getElementById('techSkillsChart').innerHTML = '';
+    document.getElementById('langSkillsChart').innerHTML = '';
+    
+    // Reset chart instances
+    charts = {
+        xp: null,
+        tech: null,
+        lang: null,
+        ratio: null
+    };
+}
+
+async function initializeCharts(isResize = false) {
+    try {
+        if (isResize) {
+            clearCharts();
+        }
+
+        // Fetch user data
+        const userData = await graphqlClient.getUserProfile();
+        if (!isResize) {
+            displayUserInfo(userData.user[0]);
+        }
+
+        // Initialize ratio chart
+        const ratioData = {
+            upload: userData.user[0].totalUp,
+            download: userData.user[0].totalDown
+        };
+        charts.ratio = new RatioChart('auditInfo', ratioData, {
+            colors: ['#4CAF50', '#f44336'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)'
+            }
+        });
+        charts.ratio.render();
+
+        // Initialize XP progress chart
+        const xpData = await graphqlClient.getXPProgression();
+        const processedXPData = DataTransformer.transformXPData(xpData.user[0].transactions);
+        charts.xp = new XPCurveChart('xpChart', processedXPData, {
+            colors: ['#2196F3'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                axisColor: 'var(--border-color)'
+            }
+        });
+        charts.xp.render();
+
+        // Initialize skills charts
+        const skillsData = await graphqlClient.getUserSkills();
+        const { technicalSkills, languageSkills } = DataTransformer.transformSkillsData(skillsData.user[0].transactions);
+        
+        charts.tech = new SkillsRadarChart('techSkillsChart', technicalSkills, {
+            colors: ['#FF9800'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                fontFamily: 'inherit'
+            }
+        });
+        charts.tech.render();
+
+        charts.lang = new SkillsRadarChart('langSkillsChart', languageSkills, {
+            colors: ['#E91E63'],
+            theme: {
+                textColor: 'var(--text-color)',
+                gridColor: 'var(--border-color)',
+                fontFamily: 'inherit'
+            }
+        });
+        charts.lang.render();
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+            // Handle error (show error message to user)
+        }
+    }
+
+        // Initialize everything
+        initializeCharts(false);
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                initializeCharts(true);
+            }, 250);
+        });
+    </script>
+</body>
+</html>

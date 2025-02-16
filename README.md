@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GraphQL Profile Dashboard
 
-## Getting Started
+A modern Next.js web application that displays user profile information and statistics using GraphQL. The application features a secure login system and interactive visualizations of user data.
 
-First, run the development server:
+## Features
 
+- Secure authentication with JWT
+- Interactive data visualizations using SVG
+- Real-time data fetching with GraphQL
+- Responsive design with Tailwind CSS
+- Modern, clean UI
+- Server-side rendering with Next.js
+
+## Visualizations
+
+- XP Progress Line Chart
+- Technical Skills Radar Chart
+- Programming Languages Radar Chart
+- Audit Ratio Statistics
+
+## Project Structure
+
+```
+graphql/
+├── app/                    # Next.js app directory
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Home page
+│   └── globals.css        # Global styles
+├── src/
+│   ├── components/        # Reusable components
+│   │   ├── Layout.tsx
+│   │   ├── Header/
+│   │   └── BreadCrumbs/
+│   ├── graphql/          # GraphQL configuration
+│   │   ├── client.tsx    # Apollo client setup
+│   │   └── queries.tsx   # GraphQL queries
+│   ├── hooks/            # Custom React hooks
+│   │   ├── useColorMode.tsx
+│   │   └── useLocalStorage.tsx
+│   ├── pages/            # Application pages
+│   │   ├── _app.tsx
+│   │   ├── login/
+│   │   └── dashboard/
+│   └── styles/           # Styling
+│       └── globals.css
+├── public/               # Static assets
+└── README.md
+```
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Authentication
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The application uses JWT (JSON Web Tokens) for authentication. The login page accepts both username/password and email/password combinations.
 
-## Learn More
+## API Integration
 
-To learn more about Next.js, take a look at the following resources:
+The application integrates with the GraphQL API endpoint at `https://learn.reboot01.com/api/graphql-engine/v1/graphql`. All data queries are handled through Apollo Client using proper authentication headers.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Data Visualization
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The visualization system is built using modern charting libraries and SVG, providing smooth animations and interactions. The system includes:
 
-## Deploy on Vercel
+- Line Chart implementation for XP progression
+- Pie Chart for skills visualization
+- Interactive tooltips
+- Responsive design with automatic resizing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Styling
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application uses Tailwind CSS for styling with:
+
+- Custom theme configuration
+- Responsive design system
+- Dark mode support
+- Component-based organization
+- Mobile-first approach
+
+## Browser Support
+
+The application supports all modern browsers that implement standard ES6+ features and modern CSS properties.
+
+## Development
+
+To modify or extend the application:
+
+1. All visualization components are in `src/pages/dashboard/components/Charts`
+2. Authentication handling is in the login components
+3. GraphQL setup is in `src/graphql/client.tsx`
+4. GraphQL queries are in `src/graphql/queries.tsx`
+
+## License
+
+MIT License

@@ -1,7 +1,12 @@
 {
-  "name": "new-project",
-  "version": "0.1.0",
+  "name": "graphql",
+  "version": "1.0.0",
+  "description": "A modern web application that displays user profile information and statistics using GraphQL. The application features a secure login system and interactive visualizations of user data.",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://learn.reboot01.com/git/arajab/graphql.git"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -28,5 +33,6 @@
     "prettier": "^3.5.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  }
+  },
+  "license": "MIT"
 }
