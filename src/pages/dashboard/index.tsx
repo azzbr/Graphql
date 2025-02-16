@@ -308,17 +308,17 @@ const Dashboard = () => {
       </Head>
       <Layout>
         {user && moduleEvent && (
-          <div className="mb-4">
-            <h2 className="text-lg text-black dark:text-white">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-black dark:text-white mb-2">
               Welcome, {user.firstName} {user.lastName}
             </h2>
-            <p className="text-sm text-body dark:text-bodydark">
-              Campus: {moduleEvent.event.campus}
+            <p className="text-lg font-medium text-body dark:text-bodydark">
+              Campus: {moduleEvent.event.campus.charAt(0).toUpperCase() + moduleEvent.event.campus.slice(1)}
             </p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-8">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-8">
           <CardDataStats
             title="Level"
             total={moduleEvent ? moduleEvent.level.toString() : ''}

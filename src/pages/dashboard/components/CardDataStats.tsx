@@ -18,8 +18,8 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
   children,
 }) => {
   return (
-    <div className="card card-gradient group">
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/30 transition-transform duration-300 group-hover:scale-110">
+    <div className="card card-gradient">
+      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/30 transition-transform duration-300 hover:scale-110">
         {children}
       </div>
 
