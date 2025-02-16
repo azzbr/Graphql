@@ -301,20 +301,24 @@ const Dashboard = () => {
     fetchDashboardData(token);
   }, []);
 
-  const layoutUser = user && moduleEvent ? {
-    firstName: user.firstName,
-    lastName: user.lastName,
-    campus: moduleEvent.event.campus,
-    level: moduleEvent.level
-  } : undefined;
-
   return (
     <>
       <Head>
         <title>Dashboard</title>
       </Head>
-      <Layout user={layoutUser}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-8">
+      <Layout>
+        {user && moduleEvent && (
+          <div className="mb-4">
+            <h2 className="text-lg text-black dark:text-white">
+              Welcome, {user.firstName} {user.lastName}
+            </h2>
+            <p className="text-sm text-body dark:text-bodydark">
+              Campus: {moduleEvent.event.campus}
+            </p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-8">
           <CardDataStats
             title="Level"
             total={moduleEvent ? moduleEvent.level.toString() : ''}
