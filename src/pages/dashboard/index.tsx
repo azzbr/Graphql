@@ -307,16 +307,48 @@ const Dashboard = () => {
         <title>Dashboard</title>
       </Head>
       <Layout>
-        {user && moduleEvent && (
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-black dark:text-white mb-2">
-              Welcome, {user.firstName} {user.lastName}
-            </h2>
-            <p className="text-lg font-medium text-body dark:text-bodydark">
-              Campus: {moduleEvent.event.campus.charAt(0).toUpperCase() + moduleEvent.event.campus.slice(1)}
-            </p>
+        <div className="mb-8 grid grid-cols-12 items-center">
+          <div className="col-span-3" />
+          <div className="col-span-6 text-center">
+            {user && moduleEvent && (
+              <>
+                <h2 className="text-3xl font-bold text-black dark:text-white mb-2">
+                  Welcome, {user.firstName} {user.lastName}
+                </h2>
+                <p className="text-lg font-medium text-body dark:text-bodydark">
+                  Campus: {moduleEvent.event.campus.charAt(0).toUpperCase() + moduleEvent.event.campus.slice(1)}
+                </p>
+              </>
+            )}
           </div>
-        )}
+          <div className="col-span-3 flex justify-end">
+            {user && moduleEvent && (
+              <button
+              onClick={() => {
+                localStorage.removeItem('hasura-jwt-token');
+                router.push('/login');
+              }}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-all hover:bg-opacity-90 dark:bg-boxdark"
+            >
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h8.25"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Logout
+              </button>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-8">
           <CardDataStats
@@ -400,13 +432,13 @@ const Dashboard = () => {
               <PieChart skills={skills} />
             </div>
           </div>
-          <div className="col-span-12">
-            <div className="card">
+          <div className="col-span-12 xl:col-span-6">
+            <div className="card h-full">
               <Table transactions={xps ? xps : []} />
             </div>
           </div>
-          <div className="col-span-12">
-            <div className="card">
+          <div className="col-span-12 xl:col-span-6">
+            <div className="card h-full">
               <PendingProjects projects={pendingProjectsList} />
             </div>
           </div>

@@ -8,9 +8,9 @@
     "url": "https://learn.reboot01.com/git/arajab/graphql.git"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 8080",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 8080",
     "lint": "next lint"
   },
   "dependencies": {

@@ -12,7 +12,16 @@ const options: ApexOptions = {
     height: 350,
     type: 'area',
     toolbar: {
-      show: false,
+      show: true,
+      tools: {
+        download: false,
+        selection: false,
+        zoom: false,
+        zoomin: true,
+        zoomout: true,
+        pan: false,
+        reset: false
+      }
     },
     animations: {
       enabled: true,
@@ -202,7 +211,41 @@ const LineChart: React.FC<LineChartProps> = ({ xps }) => {
       <div className="h-[350px] w-full">
         {xps && (
           <DynamicApexCharts
-            options={options}
+            options={{
+              ...options,
+              chart: {
+                ...options.chart,
+                toolbar: {
+                  show: true,
+                  tools: {
+                    download: false,
+                    selection: false,
+                    zoom: false,
+                    zoomin: true,
+                    zoomout: true,
+                    pan: false,
+                    reset: false
+                  },
+                  autoSelected: 'zoom'
+                },
+                zoom: {
+                  enabled: true,
+                  type: 'x',
+                  autoScaleYaxis: true,
+                  zoomedArea: {
+                    fill: {
+                      color: '#90CAF9',
+                      opacity: 0.4
+                    },
+                    stroke: {
+                      color: '#0D47A1',
+                      opacity: 0.4,
+                      width: 1
+                    }
+                  }
+                }
+              }
+            }}
             series={state.series}
             type="area"
             height={350}
