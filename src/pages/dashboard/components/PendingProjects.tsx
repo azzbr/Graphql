@@ -1,15 +1,23 @@
 import React from 'react';
 
 interface Project {
-  name: string;
-  baseXp: number;
+  attrs: {
+    baseXp: number;
+    requirements?: {
+      core?: string;
+      skills?: Record<string, number>;
+      objects?: string[];
+    };
+  };
+  key: string;
 }
 
 interface PendingProjectsProps {
-  projects: string[];
+  projects: Map<string, Project>;
 }
 
 const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
+  const projectsList = Array.from(projects.entries());
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
@@ -20,7 +28,7 @@ const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
           </h4>
         </div>
         <span className="text-sm text-body dark:text-bodydark">
-          {projects.length} projects
+          {projectsList.length} projects
         </span>
       </div>
 
@@ -39,19 +47,19 @@ const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
         </div>
 
         <div className="divide-y divide-stroke dark:divide-strokedark">
-          {projects.map((project, key) => (
+          {projectsList.map(([name, project], key) => (
             <div
               key={key}
               className="grid grid-cols-2 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors duration-200"
             >
               <div className="p-4">
                 <p className="text-sm font-medium text-black dark:text-white">
-                  {project}
+                  {name}
                 </p>
               </div>
               <div className="p-4 text-center">
                 <p className="text-sm font-medium text-warning">
-                  Pending
+                  Pending ({(Math.round(project.attrs.baseXp / 1000)).toString()}KB)
                 </p>
               </div>
             </div>

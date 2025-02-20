@@ -47,6 +47,31 @@ export const GET_XP = gql`
   }
 `;
 
+export const GET_LEVEL_INFO = gql`
+  query getLevelInfo($userId: Int!, $modulePath: String!) {
+    user(where: { id: { _eq: $userId } }) {
+      events(where: { event: { path: { _eq: $modulePath } } }) {
+        eventId
+        level
+        event {
+          path
+        }
+      }
+      progresses(
+        where: { event: { path: { _eq: $modulePath } } }
+      ) {
+        grade
+        isDone
+        path
+        object {
+          name
+          type
+        }
+      }
+    }
+  }
+`;
+
 export const GET_MODULE_EVENT = gql`
   query user($userId: Int!, $modulePath: String!) {
     user(where: { id: { _eq: $userId } }) {
@@ -82,25 +107,6 @@ export const GET_PROJECTS_TRANSACTIONS = gql`
       createdAt
       object {
         name
-      }
-    }
-  }
-`;
-
-export const GET_PROJECTS_DATA = gql`
-  query Object($eventId: Int!, $registrationId: Int!) {
-    object(
-      where: {
-        type: { _eq: "module" }
-        events: { id: { _eq: $eventId } }
-        registrations: { id: { _eq: $registrationId } }
-      }
-    ) {
-      type
-      name
-      childrenRelation {
-        attrs
-        key
       }
     }
   }

@@ -10,11 +10,13 @@ import {
   GET_XP,
   GET_SKILLS,
   GET_MODULE_CHILDREN,
+  GET_LEVEL_INFO,
 } from '@/graphql/queries';
 import CardDataStats from './components/CardDataStats';
+import LevelCard from './components/LevelCard';
 import LineChart from './components/Charts/LineChart';
 import { ApolloError } from '@apollo/client';
-import PieChart from './components/Charts/PieChart';
+import RadarChart from './components/Charts/RadarChart';
 import Table from './components/Table';
 import PendingProjects from './components/PendingProjects';
 
@@ -72,32 +74,18 @@ interface Project {
   key: string;
 }
 
-const pendingProjectsList = [
-  'tetris-optimizer',
-  'guess-it-2',
-  'git',
-  'my-ls-1',
-  'groupie-tracker-geolocalization',
-  'push-swap',
-  'make-your-game-score-handling',
-  'make-your-game-history',
-  'make-your-game-different-maps',
-  'real-time-forum-typing-in-progress',
-  'atm-management-system',
-  'mister-quiz',
-  'shop',
-  'graphql',
-  'stock-exchange-sim',
-  'netfix',
-  'system-monitor',
-  'wget',
-  'make-your-own'
-];
+const getRank = (level: number): { currentRank: string; levelsToNext: number } => {
+  if (level < 30) return { currentRank: 'Apprentice developer', levelsToNext: 30 - level };
+  if (level < 35) return { currentRank: 'Junior developer', levelsToNext: 35 - level };
+  if (level < 40) return { currentRank: 'Mid-level developer', levelsToNext: 40 - level };
+  return { currentRank: 'Senior developer', levelsToNext: 0 };
+};
 
 const Dashboard = () => {
   const router = useRouter();
   const [user, setUser] = useState<User>();
   const [moduleEvent, setModuleEvent] = useState<UserModuleEvent>();
+  const [levelInfo, setLevelInfo] = useState<{ nextLevelXp: number }>();
   const [xps, setXPs] = useState<Transaction[]>();
   const [skills, setSkills] = useState<Skill[]>();
   const [projects, setProjects] = useState<Map<string, Project>>();
@@ -144,6 +132,11 @@ const Dashboard = () => {
         xp: xpData.xp.aggregate.sum.amount,
       };
       setUser(updatedUser);
+
+      // Calculate next level XP requirement
+      const nextLevel = moduleEventData.user[0].events[0].level + 1;
+      const nextLevelXpNeeded = Math.round((nextLevel * 10000) / 100);
+      setLevelInfo({ nextLevelXp: nextLevelXpNeeded });
 
       // Get xp progression data
       const xpsRes = await fetchGQLData(GET_PROJECTS_TRANSACTIONS, token, {
@@ -214,6 +207,15 @@ const Dashboard = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('hasura-jwt-token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    fetchDashboardData(token);
+  }, []);
 
   useEffect(() => {
     if (!moduleEvent || !xps || !skills || !projects) return;
@@ -292,14 +294,7 @@ const Dashboard = () => {
     setOpenProjects(new Map(sortedProjects));
   }, [moduleEvent, xps, skills, projects]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('hasura-jwt-token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchDashboardData(token);
-  }, []);
+  const rank = moduleEvent ? getRank(moduleEvent.level) : { currentRank: '', levelsToNext: 0 };
 
   return (
     <>
@@ -324,36 +319,38 @@ const Dashboard = () => {
           <div className="col-span-3 flex justify-end">
             {user && moduleEvent && (
               <button
-              onClick={() => {
-                localStorage.removeItem('hasura-jwt-token');
-                router.push('/login');
-              }}
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-all hover:bg-opacity-90 dark:bg-boxdark"
-            >
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+                onClick={() => {
+                  localStorage.removeItem('hasura-jwt-token');
+                  router.push('/login');
+                }}
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-all hover:bg-opacity-90 dark:bg-boxdark"
               >
-                <path
-                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h8.25"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Logout
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h8.25"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Logout
               </button>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-8">
-          <CardDataStats
-            title="Level"
-            total={moduleEvent ? moduleEvent.level.toString() : ''}
+          <LevelCard
+            level={moduleEvent?.level || 0}
+            nextLevelXp={levelInfo?.nextLevelXp || 0}
+            currentRank={rank.currentRank}
+            levelsToNextRank={rank.levelsToNext}
           >
             <svg
               className="fill-primary dark:fill-white"
@@ -364,11 +361,10 @@ const Dashboard = () => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill=""
                 d="M30.000,32.000 L23.000,32.000 C22.447,32.000 22.000,31.552 22.000,31.000 L22.000,1.000 C22.000,0.448 22.447,-0.000 23.000,-0.000 L30.000,-0.000 C30.553,-0.000 31.000,0.448 31.000,1.000 L31.000,31.000 C31.000,31.552 30.553,32.000 30.000,32.000 ZM29.000,2.000 L24.000,2.000 L24.000,30.000 L29.000,30.000 L29.000,2.000 ZM19.000,32.000 L12.000,32.000 C11.448,32.000 11.000,31.552 11.000,31.000 L11.000,17.000 C11.000,16.448 11.448,16.000 12.000,16.000 L19.000,16.000 C19.553,16.000 20.000,16.448 20.000,17.000 L20.000,31.000 C20.000,31.552 19.553,32.000 19.000,32.000 ZM18.000,18.000 L13.000,18.000 L13.000,30.000 L18.000,30.000 L18.000,18.000 ZM8.000,32.000 L1.000,32.000 C0.448,32.000 0.000,31.552 0.000,31.000 L0.000,11.000 C0.000,10.448 0.448,10.000 1.000,10.000 L8.000,10.000 C8.552,10.000 9.000,10.448 9.000,11.000 L9.000,31.000 C9.000,31.552 8.552,32.000 8.000,32.000 ZM7.000,12.000 L2.000,12.000 L2.000,30.000 L7.000,30.000 L7.000,12.000 Z"
               />
             </svg>
-          </CardDataStats>
+          </LevelCard>
           <CardDataStats
             title="Total XP"
             total={
@@ -386,7 +382,6 @@ const Dashboard = () => {
             >
               <path
                 d="M16.526 23h1.414l.977-4.923 2.306.01c1.61 0 2.934-.412 3.973-1.236 1.04-.824 1.633-1.921 1.779-3.293.088-.941-.056-1.76-.434-2.455l-2.73 1.427c.02.11.031.223.035.335.022.872-.183 1.566-.615 2.083-.432.516-1.04.78-1.822.793l-2.031-.02.194-.975-3.515 1.837-.64 3.245-.862-2.46-2.645 1.383L12.992 23zm-1.315-10.99h1.75l-.532 2.693 3.516-1.838.3-1.51 2.295.02c.07.004.14.013.208.026l2.8-1.464c-.746-.586-1.701-.895-2.866-.927L17.556 9h-2.215l-1.88 3.01h1.75-1.75l-1.051 1.779L11.18 9H7.7l2.372 6.827-2.467 3.49 6.659-3.482 2.697-3.826zM16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16zM5.786 21.952l-.02-.037L5 23h3.765l2.348-3.833z"
-                fill=""
               />
             </svg>
           </CardDataStats>
@@ -405,6 +400,7 @@ const Dashboard = () => {
                 ? (Math.round(user.totalDown / 10000) / 100).toString() + 'MB'
                 : ''
             }
+            type="audit"
           >
             <svg
               className="fill-primary dark:fill-white"
@@ -415,7 +411,6 @@ const Dashboard = () => {
             >
               <path
                 d="M4,21a1,1,0,0,1-.71-.29,1,1,0,0,1,0-1.42l16-16a1,1,0,1,1,1.42,1.42l-16,16A1,1,0,0,1,4,21Z"
-                fill=""
               />
             </svg>
           </CardDataStats>
@@ -429,7 +424,9 @@ const Dashboard = () => {
           </div>
           <div className="col-span-12 xl:col-span-4">
             <div className="chart-card">
-              <PieChart skills={skills} />
+              <RadarChart 
+                skills={skills?.slice(0, 5)}
+              />
             </div>
           </div>
           <div className="col-span-12 xl:col-span-6">
@@ -439,7 +436,7 @@ const Dashboard = () => {
           </div>
           <div className="col-span-12 xl:col-span-6">
             <div className="card h-full">
-              <PendingProjects projects={pendingProjectsList} />
+              <PendingProjects projects={openProjects || new Map()} />
             </div>
           </div>
         </div>

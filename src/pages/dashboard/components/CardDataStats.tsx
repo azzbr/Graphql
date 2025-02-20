@@ -7,6 +7,7 @@ interface CardDataStatsProps {
   rateDown?: string;
   info?: string[];
   children: React.ReactNode;
+  type?: 'default' | 'audit';
 }
 
 const CardDataStats: React.FC<CardDataStatsProps> = ({
@@ -16,70 +17,63 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
   rateDown,
   info,
   children,
+  type = 'default'
 }) => {
+  // Calculate progress bar percentages
+  const upValue = parseFloat(rateUp?.replace('MB', '') || '0');
+  const downValue = parseFloat(rateDown?.replace('MB', '') || '0');
+  const maxValue = Math.max(upValue, downValue);
+  const upPercent = maxValue > 0 ? (upValue / maxValue) * 100 : 0;
+  const downPercent = maxValue > 0 ? (downValue / maxValue) * 100 : 0;
+
   return (
     <div className="card card-gradient">
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/30 transition-transform duration-300 hover:scale-110">
-        {children}
-      </div>
-
-      <div className="mt-4 flex items-end justify-between">
-        <div>
-          <h4 className="stats-value mb-2">{total}</h4>
-          <span className="stats-label">{title}</span>
-          {info && info.length > 0 && (
-            <div className="mt-3 space-y-1">
-              {info.map((item, index) => (
-                <div 
-                  key={index} 
-                  className="text-xs font-medium text-primary/80 dark:text-primary/70"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          )}
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/30">
+          {children}
         </div>
-
-        {(rateUp || rateDown) && (
-          <div className="flex flex-col items-end gap-2">
-            {rateUp && (
-              <div className="flex items-center gap-1 text-success">
-                <svg
-                  className="fill-current"
-                  width="10"
-                  height="11"
-                  viewBox="0 0 10 11"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z"
-                  />
-                </svg>
-                <span className="text-sm font-medium">{rateUp}</span>
-              </div>
-            )}
-            {rateDown && (
-              <div className="flex items-center gap-1 text-danger">
-                <svg
-                  className="fill-current"
-                  width="10"
-                  height="11"
-                  viewBox="0 0 10 11"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M5.64284 7.69237L9.09102 4.33987L10 5.22362L5 10.0849L-8.98488e-07 5.22362L0.908973 4.33987L4.35716 7.69237L4.35716 0.0848689L5.64284 0.0848689L5.64284 7.69237Z"
-                  />
-                </svg>
-                <span className="text-sm font-medium">{rateDown}</span>
-              </div>
+        <div>
+          <span className="stats-label text-sm">{title}</span>
+          <div className="flex items-center gap-2">
+            <span className="stats-value text-xl">{total}</span>
+            {type === 'audit' && (
+              <span className="text-sm font-medium text-primary">
+                You can do better!
+              </span>
             )}
           </div>
-        )}
+        </div>
       </div>
+
+      {(rateUp || rateDown) && (
+        <div className="mt-3 space-y-1.5">
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="font-medium text-success">Done</span>
+              <span className="font-medium text-success">{rateUp}</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-1.5 rounded-full bg-success transition-all duration-300"
+                style={{ width: `${upPercent}%` }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="font-medium text-danger">Received</span>
+              <span className="font-medium text-danger">{rateDown}</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-1.5 rounded-full bg-danger transition-all duration-300"
+                style={{ width: `${downPercent}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
