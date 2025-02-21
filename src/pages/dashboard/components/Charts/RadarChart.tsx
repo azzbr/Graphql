@@ -108,11 +108,10 @@ const RadarChart: React.FC<RadarChartProps> = ({ skills }) => {
   useEffect(() => {
     if (!skills) return;
 
-    const maxAmount = Math.max(...skills.map(skill => skill.amount));
     const topSkills = skills.slice(0, 5);
     const formatted = topSkills.map(skill => ({
       name: formatSkillName(skill.type),
-      amount: Math.round((skill.amount / maxAmount) * 100)
+      amount: skill.amount
     }));
 
     setFormattedSkills(formatted);
