@@ -13,14 +13,14 @@ const options: ApexOptions = {
     type: 'area',
     toolbar: {
       show: true,
-      tools: {
-        download: false,
-        selection: false,
-        zoom: false,
-        zoomin: true,
-        zoomout: true,
-        pan: false,
-        reset: false
+                  tools: {
+                    download: false,
+                    selection: false,
+                    zoom: false,
+                    zoomin: true,
+                    zoomout: true,
+                    pan: true,
+                    reset: true
       }
     },
     animations: {
@@ -223,10 +223,10 @@ const LineChart: React.FC<LineChartProps> = ({ xps }) => {
                     zoom: false,
                     zoomin: true,
                     zoomout: true,
-                    pan: false,
-                    reset: false
+                    pan: true,
+                    reset: true
                   },
-                  autoSelected: 'zoom'
+                  autoSelected: 'pan'
                 },
                 zoom: {
                   enabled: true,
