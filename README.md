@@ -1,3 +1,5 @@
+npm install --legacy-peer-deps
+
 # GraphQL Profile Dashboard
 
 A modern Next.js web application that displays user profile information and statistics using GraphQL. The application features a secure login system and interactive visualizations of user data.
