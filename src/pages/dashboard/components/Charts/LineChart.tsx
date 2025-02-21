@@ -128,9 +128,10 @@ interface Transaction {
 
 interface LineChartProps {
   xps?: Transaction[];
+  pendingProjects?: Map<string, { attrs: { baseXp: number } }>;
 }
 
-const LineChart: React.FC<LineChartProps> = ({ xps }) => {
+const LineChart: React.FC<LineChartProps> = ({ xps, pendingProjects }) => {
   const [state, setState] = useState<LineChartState>({
     series: [
       {
@@ -200,10 +201,15 @@ const LineChart: React.FC<LineChartProps> = ({ xps }) => {
           )}
         </div>
         {state.series[0].data.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-success">
-              Total: {state.series[0].data[state.series[0].data.length - 1].toFixed(1)}KB
+              Total XP: {state.series[0].data[state.series[0].data.length - 1].toFixed(1)}KB
             </span>
+            {pendingProjects && (
+              <span className="text-sm font-medium text-warning">
+                To Gain: {(Array.from(pendingProjects.values()).reduce((sum, project) => sum + project.attrs.baseXp, 0) / 1000).toFixed(1)}KB
+              </span>
+            )}
           </div>
         )}
       </div>

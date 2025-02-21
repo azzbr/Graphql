@@ -5,6 +5,7 @@ interface CardDataStatsProps {
   total: string;
   rateUp?: string;
   rateDown?: string;
+  pending?: string;
   info?: string[];
   children: React.ReactNode;
   type?: 'default' | 'audit';
@@ -15,6 +16,7 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
   total,
   rateUp,
   rateDown,
+  pending,
   info,
   children,
   type = 'default'
@@ -32,16 +34,29 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
         <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/30">
           {children}
         </div>
-        <div>
-          <span className="stats-label text-sm">{title}</span>
-          <div className="flex items-center gap-2">
-            <span className="stats-value text-xl">{total}</span>
-            {type === 'audit' && (
-              <span className="text-sm font-medium text-primary">
-                You can do better!
-              </span>
-            )}
+        <div className="flex flex-col w-full">
+          <div>
+            <span className="stats-label text-sm">{title}</span>
+            <div className="flex items-center">
+              <span className="stats-value text-xl">{total}</span>
+            </div>
           </div>
+          {pending && (
+            <>
+              <div className="border-b border-stroke dark:border-strokedark my-2"></div>
+              <div>
+                <span className="stats-label text-sm text-black dark:text-white">Total XP to Gain</span>
+                <div className="flex items-center">
+                  <span className="stats-value text-xl text-black dark:text-white">{pending}</span>
+                </div>
+              </div>
+            </>
+          )}
+          {type === 'audit' && (
+            <span className="text-sm font-medium text-primary mt-1">
+              You can do better!
+            </span>
+          )}
         </div>
       </div>
 
