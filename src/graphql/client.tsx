@@ -1,6 +1,6 @@
 import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client';
 
-const uri = 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
+const uri = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
 
 const client = new ApolloClient({
   uri,
