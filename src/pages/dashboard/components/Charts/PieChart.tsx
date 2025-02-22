@@ -97,7 +97,7 @@ const PieChart: React.FC<PieChartProps> = ({ skills }) => {
               fontSize: '14px',
               fontFamily: 'Inter, sans-serif',
               fontWeight: 600,
-              formatter: (w: any) => {
+              formatter: function(w: { globals: { seriesTotals: number[] } }) {
                 const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
                 return `${total.toFixed(1)}KB`;
               },

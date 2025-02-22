@@ -10,7 +10,6 @@ import {
   GET_XP,
   GET_SKILLS,
   GET_MODULE_CHILDREN,
-  GET_LEVEL_INFO,
 } from '@/graphql/queries';
 import CardDataStats from './components/CardDataStats';
 import LevelCard from './components/LevelCard';
@@ -176,12 +175,8 @@ const Dashboard = () => {
       }
       const allProjects = modChildrenData.object[0].childrenRelation;
       const projectsMap = new Map();
-      allProjects.forEach((project: any) => {
-        if (
-          project.paths?.length !== 0 &&
-          project.paths?.[0]?.object?.name !== null &&
-          project.attrs
-        ) {
+      allProjects.forEach((project: { paths?: { object: { name: string } }[]; attrs: Record<string, unknown>; key: string }) => {
+        if (project.paths && project.paths.length > 0 && project.paths[0]?.object?.name && project.attrs) {
           projectsMap.set(project.paths[0].object.name, {
             attrs: {
               ...project.attrs,

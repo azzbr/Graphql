@@ -33,8 +33,12 @@ const LoginForm: React.FC = () => {
       }
       localStorage.setItem('hasura-jwt-token', data);
       router.push('/dashboard');
-    } catch (error: any) {
-      setError(error.message || 'Login failed');
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Login failed');
+      }
     }
   };
 
