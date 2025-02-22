@@ -4,7 +4,7 @@
 
 [build.environment]
   NEXT_PUBLIC_GRAPHQL_URL = "https://learn.reboot01.com/api/graphql-engine/v1/graphql"
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
