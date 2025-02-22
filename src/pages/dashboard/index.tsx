@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Layout from '@/components/Layout';
 import { fetchGQLData } from '@/graphql/client';
 import {
@@ -90,7 +90,7 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Map<string, Project>>();
   const [openProjects, setOpenProjects] = useState<Map<string, Project>>();
 
-  const fetchDashboardData = async (token: string) => {
+  const fetchDashboardData = useCallback(async (token: string) => {
     try {
       // Get user data
       const userRes = await fetchGQLData(GET_USER_WITH_AUDIT, token);
@@ -201,7 +201,7 @@ const Dashboard = () => {
       }
       return;
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem('hasura-jwt-token');
@@ -210,7 +210,7 @@ const Dashboard = () => {
       return;
     }
     fetchDashboardData(token);
-  }, []);
+  }, [router, fetchDashboardData]);
 
   useEffect(() => {
     if (!moduleEvent || !xps || !skills || !projects) return;

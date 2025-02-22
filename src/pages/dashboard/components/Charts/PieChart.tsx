@@ -61,9 +61,7 @@ const PieChart: React.FC<PieChartProps> = ({ skills }) => {
       fontSize: '14px',
       fontWeight: 500,
       markers: {
-        width: 8,
-        height: 8,
-        radius: 99,
+        size: 8,
       },
       itemMargin: {
         horizontal: 10,
