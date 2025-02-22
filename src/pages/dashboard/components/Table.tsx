@@ -19,11 +19,11 @@ const Table: React.FC<TableProps> = ({ transactions }) => {
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-primary"></span>
           <h4 className="text-xl font-semibold text-black dark:text-white">
-            Transaction History
+            Project History
           </h4>
         </div>
         <span className="text-sm text-body dark:text-bodydark">
-          {transactions.length} transactions
+          {transactions.length} projects
         </span>
       </div>
 

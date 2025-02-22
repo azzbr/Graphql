@@ -160,13 +160,12 @@ const LineChart: React.FC<LineChartProps> = ({ xps, pendingProjects }) => {
     });
 
     if (Array.isArray(options.yaxis)) {
-      options.yaxis[0].max = accumulatedSum / 1000;
+      options.yaxis[0].max = Math.round(accumulatedSum / 10) / 100;
     }
 
     const accumulatedData = xpsWithAccumulated.map((transaction) => {
       if (!transaction.accumulated) return 0;
-      const accumulatedDecimal = transaction.accumulated / 1000;
-      return parseFloat(accumulatedDecimal.toFixed(1)) || 0;
+      return Math.round(transaction.accumulated / 10) / 100;
     });
 
     setState({
@@ -184,34 +183,7 @@ const LineChart: React.FC<LineChartProps> = ({ xps, pendingProjects }) => {
               XP Progression
             </h4>
           </div>
-          {xps && xps.length > 0 && (
-            <span className="text-sm text-body dark:text-bodydark">
-              {new Date(xps[0].createdAt).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-              })}
-              {' - '}
-              {new Date(xps[xps.length - 1].createdAt).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-              })}
-            </span>
-          )}
         </div>
-        {state.series[0].data.length > 0 && (
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-success">
-              Total XP: {state.series[0].data[state.series[0].data.length - 1].toFixed(1)}KB
-            </span>
-            {pendingProjects && (
-              <span className="text-sm font-medium text-warning">
-                To Gain: {(Array.from(pendingProjects.values()).reduce((sum, project) => sum + project.attrs.baseXp, 0) / 1000).toFixed(1)}KB
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
       <div className="h-[350px] w-full">

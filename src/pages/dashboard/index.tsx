@@ -134,8 +134,8 @@ const Dashboard = () => {
       setUser(updatedUser);
 
       // Calculate next level XP requirement
-      const nextLevel = moduleEventData.user[0].events[0].level + 1;
-      const nextLevelXpNeeded = Math.round((nextLevel * 10000) / 100);
+      const level = moduleEventData.user[0].events[0].level;
+      const nextLevelXpNeeded = Math.round(((level + 1) * 1950) / 1000 * 10) / 10;
       setLevelInfo({ nextLevelXp: nextLevelXpNeeded });
 
       // Get xp progression data
@@ -323,21 +323,17 @@ const Dashboard = () => {
                   localStorage.removeItem('hasura-jwt-token');
                   router.push('/login');
                 }}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-all hover:bg-opacity-90 dark:bg-boxdark"
+                className="flex items-center gap-3 rounded-lg bg-primary px-5 py-2.5 text-white transition-all hover:bg-opacity-90 dark:bg-boxdark"
               >
                 <svg
                   className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
+                  viewBox="0 0 110.395 122.88"
                   xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
                 >
-                  <path
-                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h8.25"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <g>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M93.359,17.16L75.68,9.377L75.99,0h34.404v61.439v61.44H75.99l-0.311-6.835 l17.68-10.946V17.16L93.359,17.16z M82.029,79.239v-34.54H47.004V13.631L0,61.937l47.004,48.373v-31.07H82.029L82.029,79.239z"/>
+                  </g>
                 </svg>
                 Logout
               </button>
