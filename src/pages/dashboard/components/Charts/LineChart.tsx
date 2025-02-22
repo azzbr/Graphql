@@ -25,7 +25,6 @@ const options: ApexOptions = {
     },
     animations: {
       enabled: true,
-      easing: 'easeinout',
       speed: 800,
     },
     dropShadow: {
@@ -128,10 +127,9 @@ interface Transaction {
 
 interface LineChartProps {
   xps?: Transaction[];
-  pendingProjects?: Map<string, { attrs: { baseXp: number } }>;
 }
 
-const LineChart: React.FC<LineChartProps> = ({ xps, pendingProjects }) => {
+const LineChart: React.FC<LineChartProps> = ({ xps }) => {
   const [state, setState] = useState<LineChartState>({
     series: [
       {

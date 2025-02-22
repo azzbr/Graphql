@@ -6,7 +6,6 @@ interface CardDataStatsProps {
   rateUp?: string;
   rateDown?: string;
   pending?: string;
-  info?: string[];
   children: React.ReactNode;
   type?: 'default' | 'audit';
 }
@@ -17,7 +16,6 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
   rateUp,
   rateDown,
   pending,
-  info,
   children,
   type = 'default'
 }) => {

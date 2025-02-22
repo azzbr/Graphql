@@ -15,7 +15,7 @@ const client = new ApolloClient({
 export const fetchGQLData = async (
   myquery: DocumentNode,
   token: string,
-  variables?: any,
+  variables?: Record<string, unknown>,
 ) => {
   try {
     const response = await client.query({

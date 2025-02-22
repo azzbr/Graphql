@@ -413,7 +413,7 @@ const Dashboard = () => {
         <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-8">
           <div className="col-span-12 xl:col-span-8">
             <div className="chart-card">
-              <LineChart xps={xps} pendingProjects={openProjects} />
+              <LineChart xps={xps} />
             </div>
           </div>
           <div className="col-span-12 xl:col-span-4">
