@@ -1,18 +1,18 @@
 import React from 'react';
 
 interface LevelCardProps {
-  level: number;
-  nextLevelXp: number;
-  currentRank: string;
-  levelsToNextRank: number;
+  level?: number;
+  nextLevelXp?: number;
+  currentRank?: string;
+  levelsToNextRank?: number;
   children: React.ReactNode;
 }
 
 const LevelCard: React.FC<LevelCardProps> = ({
-  level,
-  nextLevelXp,
-  currentRank,
-  levelsToNextRank,
+  level = 0,
+  nextLevelXp = 0,
+  currentRank = 'Loading...',
+  levelsToNextRank = 0,
   children,
 }) => {
   return (

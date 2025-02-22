@@ -9,10 +9,10 @@ interface Transaction {
 }
 
 interface TableProps {
-  transactions: Transaction[];
+  transactions: Transaction[] | undefined;
 }
 
-const Table: React.FC<TableProps> = ({ transactions }) => {
+const Table: React.FC<TableProps> = ({ transactions = [] }) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
@@ -23,7 +23,7 @@ const Table: React.FC<TableProps> = ({ transactions }) => {
           </h4>
         </div>
         <span className="text-sm text-body dark:text-bodydark">
-          {transactions.length} projects
+          {transactions?.length || 0} projects
         </span>
       </div>
 
@@ -47,7 +47,7 @@ const Table: React.FC<TableProps> = ({ transactions }) => {
         </div>
 
         <div className="divide-y divide-stroke dark:divide-strokedark">
-          {transactions
+          {transactions?.length > 0 ? transactions
             .slice()
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .map((transaction, key) => (
@@ -71,7 +71,11 @@ const Table: React.FC<TableProps> = ({ transactions }) => {
                   </p>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-4 text-center text-sm text-body dark:text-bodydark">
+                No projects completed yet
+              </div>
+            )}
         </div>
       </div>
     </div>

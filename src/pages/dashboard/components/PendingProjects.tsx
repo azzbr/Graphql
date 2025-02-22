@@ -13,10 +13,10 @@ interface Project {
 }
 
 interface PendingProjectsProps {
-  projects: Map<string, Project>;
+  projects: Map<string, Project> | undefined;
 }
 
-const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
+const PendingProjects: React.FC<PendingProjectsProps> = ({ projects = new Map() }) => {
   const projectsList = Array.from(projects.entries());
   return (
     <div className="flex flex-col h-full">
@@ -47,7 +47,7 @@ const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
         </div>
 
         <div className="divide-y divide-stroke dark:divide-strokedark">
-          {projectsList.map(([name, project], key) => (
+          {projectsList.length > 0 ? projectsList.map(([name, project], key) => (
             <div
               key={key}
               className="grid grid-cols-2 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors duration-200"
@@ -63,7 +63,11 @@ const PendingProjects: React.FC<PendingProjectsProps> = ({ projects }) => {
                 </p>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="p-4 text-center text-sm text-body dark:text-bodydark">
+              No pending projects available
+            </div>
+          )}
         </div>
       </div>
     </div>
