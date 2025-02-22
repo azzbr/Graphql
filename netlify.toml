@@ -5,12 +5,10 @@
 [build.environment]
   NEXT_PUBLIC_GRAPHQL_URL = "https://learn.reboot01.com/api/graphql-engine/v1/graphql"
   NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
 [build.processing]
-  skip_processing = false
-[build.processing.css]
-  bundle = true
-  minify = true
+  skip_processing = true

@@ -51,3 +51,6 @@ next-env.d.ts
 # reference files
 !/For Reference 2/
 /For Reference/
+
+# Local Netlify folder
+.netlify
