@@ -14,8 +14,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@apollo/client": "^3.10.4",
-    "apexcharts": "^3.49.1",
+    "@apollo/client": "^3.8.0",
+    "apexcharts": "^4.0.0",
     "graphql": "^16.8.1",
     "next": "15.1.7",
     "react": "^19.0.0",
